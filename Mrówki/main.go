@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Mrowka struct{
+type Mrowka struct {
 	x int
 	y int
 }
@@ -21,31 +21,72 @@ func (m *Mrowka) move(x int, y int) {
 	(*m).y = m.y + y
 }
 
-func UstawLiscie(arr [][]string,n int ){
+func ustawLiscie(arr [][]string, n int) {
 	rand.Seed(time.Now().UnixNano())
-	for i := 0; i<n;i++ {
-		x := rand.Intn(len(arr) - 0 ) + 0
-		y := rand.Intn(len(arr[0]) - 0 ) + 0
+	for i := 0; i < n; i++ {
+		x := rand.Intn(len(arr)-2) + 1
+		y := rand.Intn(len(arr[0])-2) + 1
 		arr[x][y] = "L"
 	}
 }
 
-func main(){
-
-	a := make([][]string, 10)
+func stworzMrowisko(height int, width int) [][]string {
+	a := make([][]string, height)
 	for i := range a {
-		if i == 0 || i == 10{
-			a[i] = make([]string, 10)
-			for x := range a[i]{
-				a[i][x] = "--"
-			}	
+		a[i] = make([]string, width)
+		for x := range a[i] {
+			if x == 0 || x == len(a[i])-1 {
+				a[i][x] = "|"
+			} else {
+				a[i][x] = " "
+			}
+
 		}
-    	a[i] = make([]string, 10)
+		if i == 0 || i == len(a)-1 {
+			for x := range a[i] {
+				a[i][x] = "-"
+			}
+		}
 	}
-	
-	UstawLiscie(a,20)
+	return a
+}
 
-	for i := range a {
-		fmt.Println(a[i])
+func stworzMrowki(mrowisko [][]string, ilosc int) []Mrowka {
+	mrowki := make([]Mrowka, 10)
+	for i := range mrowki {
+		x := rand.Intn(len(mrowisko)-2) + 1
+		y := rand.Intn(len(mrowisko[0])-2) + 1
+		mrowki[i].set(x, y)
 	}
+	for i := range mrowki {
+		mrowisko[mrowki[i].x][mrowki[i].y] = "M"
+	}
+	return mrowki
+}
+
+func moveMrowki(mrowisko [][]string, mrowki []Mrowka) {
+	for i := range mrowki {
+		mrowisko[mrowki[i].x][mrowki[i].y] = " "
+		mrowki[i].move(rand.Intn(3)-1, rand.Intn(3)-1)
+		mrowisko[mrowki[i].x][mrowki[i].y] = "M"
+	}
+}
+func main() {
+
+	mrowisko := stworzMrowisko(15, 30)
+	ustawLiscie(mrowisko, 20)
+	mrowki := stworzMrowki(mrowisko, 10)
+
+	for i := 0; i < 5; i++ {
+		fmt.Printf("\x1b[2J")
+		for i := range mrowisko {
+			for x := range mrowisko[i] {
+				fmt.Print(mrowisko[i][x])
+			}
+			fmt.Println()
+		}
+		time.Sleep(1 * time.Second)
+		moveMrowki(mrowisko, mrowki)
+	}
+
 }
